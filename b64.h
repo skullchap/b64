@@ -3,6 +3,9 @@
 
 /*
  * Unlicensed :)
+ * C++ implementation was ripped from tomykaira's gist 
+ * https://gist.github.com/tomykaira/f0fd86b6c73063283afe550bc5d77594
+ *
  * written by skullchap 
  * https://github.com/skullchap/b64
 */
