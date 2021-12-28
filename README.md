@@ -4,7 +4,7 @@ base64 single header encode/decode
 ```c
 #include <stdio.h>
 #include "b64.h"
-
+// strings are stored on the heap, don't forget to free() them
 int main(int argc, char **argv)
 {
     char* b64encoded = b64Encode(argv[1]);
