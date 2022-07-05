@@ -34,20 +34,21 @@ char *b64Encode(char *dst, char *src, size_t srclen) {
       'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
       '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
 
-  ssize_t inlen = srclen;
-  ssize_t outlen = B64_LEN(inlen);
+  size_t i;
+  char *p;
+  size_t inlen = srclen;
+  size_t outlen = B64_LEN(inlen);
 
   if (!dst) {
     dst = malloc(outlen + 1);
-    // malloc failed so return early
+    /* malloc failed so return early */
     if (!dst) {
       return NULL;
     }
   }
   dst[outlen] = '\0';
-  char *p = dst;
+  p = dst;
 
-  ssize_t i;
   for (i = 0; i < inlen - 2; i += 3) {
     *p++ = b64e[(src[i] >> 2) & 0x3F];
     *p++ = b64e[((src[i] & 0x3) << 4) | ((src[i + 1] & 0xF0) >> 4)];
@@ -80,7 +81,7 @@ char *b64Encode(char *dst, char *src, size_t srclen) {
  * if dst is not NULL, then it must point to an array that has the size of at
  * least (srclen / 4 * 3)
  */
-char *b64Decode(char *dst, char *src, size_t srclen) {
+char *b64Decode(char *dst, char *src, char srclen) {
   static const char b64d[] = {
       64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
       64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
@@ -97,12 +98,12 @@ char *b64Decode(char *dst, char *src, size_t srclen) {
       64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
       64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
       64, 64, 64, 64};
+  size_t i, j;
+  size_t inlen = srclen;
+  size_t outlen = B64_REV(inlen);
 
-  ssize_t inlen = srclen;
   if (inlen == 0 || inlen % 4)
     return NULL;
-  ssize_t outlen = B64_REV(inlen);
-
   if (src[inlen - 1] == '=')
     outlen--;
   if (src[inlen - 2] == '=')
@@ -110,20 +111,19 @@ char *b64Decode(char *dst, char *src, size_t srclen) {
 
   if (!dst) {
     dst = malloc(outlen + 1);
-    // malloc failed so return early
+    /* malloc failed so return early */
     if (!dst)
       return NULL;
   }
   dst[outlen] = '\0';
 
-  typedef unsigned int u32;
-  for (ssize_t i = 0, j = 0; i < inlen;) {
-    u32 a = src[i] == '=' ? 0 & i++ : b64d[(src[i++])];
-    u32 b = src[i] == '=' ? 0 & i++ : b64d[(src[i++])];
-    u32 c = src[i] == '=' ? 0 & i++ : b64d[(src[i++])];
-    u32 d = src[i] == '=' ? 0 & i++ : b64d[(src[i++])];
+  for (i = 0, j = 0; i < inlen;) {
+    unsigned int a = src[i] == '=' ? 0 & i++ : b64d[(src[i++])];
+    unsigned int b = src[i] == '=' ? 0 & i++ : b64d[(src[i++])];
+    unsigned int c = src[i] == '=' ? 0 & i++ : b64d[(src[i++])];
+    unsigned int d = src[i] == '=' ? 0 & i++ : b64d[(src[i++])];
 
-    u32 triple = (a << 3 * 6) + (b << 2 * 6) + (c << 1 * 6) + (d << 0 * 6);
+    unsigned int triple = (a << 3 * 6) + (b << 2 * 6) + (c << 1 * 6) + (d << 0 * 6);
 
     if (j < outlen)
       dst[j++] = (triple >> 2 * 8) & 0xFF;
