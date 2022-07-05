@@ -123,7 +123,8 @@ char *b64Decode(char *dst, char *src, char srclen) {
     unsigned int c = src[i] == '=' ? 0 & i++ : b64d[(src[i++])];
     unsigned int d = src[i] == '=' ? 0 & i++ : b64d[(src[i++])];
 
-    unsigned int triple = (a << 3 * 6) + (b << 2 * 6) + (c << 1 * 6) + (d << 0 * 6);
+    unsigned int triple =
+        (a << 3 * 6) + (b << 2 * 6) + (c << 1 * 6) + (d << 0 * 6);
 
     if (j < outlen)
       dst[j++] = (triple >> 2 * 8) & 0xFF;

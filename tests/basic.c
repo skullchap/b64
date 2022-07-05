@@ -5,7 +5,7 @@
 int main() {
   char *reencoded;
   char *input = "gergerg,1414124124124124332\n";
-  char *result = b64Encode(NULL, (void*)input, strlen(input));
+  char *result = b64Encode(NULL, (void *)input, strlen(input));
   char *expected_result = "Z2VyZ2VyZywxNDE0MTI0MTI0MTI0MTI0MzMyCg==";
   if (strcmp(result, expected_result)) {
     printf("The result for encoding of string is wrong, left: %s, right: %s",
