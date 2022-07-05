@@ -1,6 +1,8 @@
 # b64.h
 base64 single header encode/decode
 
+## Works with C89
+
 ```c
 #include <stdio.h>
 #include "b64.h"
@@ -31,3 +33,5 @@ $ ./a.out sus
 c3Vz
 sus
 ```
+
+
