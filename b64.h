@@ -16,7 +16,15 @@
 #define B64_LEN(inlen) ((((inlen) + 2) / 3) * 4)
 #define B64_REV(inlen) (((inlen) / 4) * 3)
 
-char *b64Encode(void *dst, char *src, size_t srclen)
+/* b64Encode - encodes an array of bytes to base64
+ * Inputs:
+ * - dst : the destination array (if it's NULL, the function will allocate the buffer)
+ * - src : the source array
+ * - srclen : the length of the source array
+ * Safety: 
+ * if dst is not NULL, then it must point to an array that has the size of at least ((srclen + 2) / 3 * 4)
+ */
+char *b64Encode(char *dst, char *src, size_t srclen)
 {
     static const char b64e[] = {
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -28,18 +36,19 @@ char *b64Encode(void *dst, char *src, size_t srclen)
         'w', 'x', 'y', 'z', '0', '1', '2', '3',
         '4', '5', '6', '7', '8', '9', '+', '/'};
 
-    int external_flag = 0;
-    if (dst != NULL)
-        external_flag++;
 
     ssize_t inlen = srclen;
     ssize_t outlen = B64_LEN(inlen);
 
-    char *out = (external_flag) ? dst : malloc(outlen + 1);
-    if (out == NULL)
-        return NULL;
-    out[outlen] = '\0';
-    char *p = out;
+    if (!dst) {
+    	dst = malloc(outlen + 1);
+	// malloc failed so return early
+    	if(!dst) {
+	    return NULL;
+	}
+    }
+    dst[outlen] = '\0';
+    char *p = dst;
 
     ssize_t i;
     for (i = 0; i < inlen - 2; i += 3)
@@ -66,10 +75,18 @@ char *b64Encode(void *dst, char *src, size_t srclen)
         *p++ = '=';
     }
 
-    return out;
+    return dst;
 }
 
-char *b64Decode(void *dst, char *src, size_t srclen)
+/* b64Decode - decodes an array of bytes from base64
+ * Inputs:
+ * - dst : the destination array (if it's NULL, the function will allocate the buffer)
+ * - src : the source array
+ * - srclen : the length of the source array
+ * Safety: 
+ * if dst is not NULL, then it must point to an array that has the size of at least (srclen / 4 * 3)
+ */
+char *b64Decode(char *dst, char *src, size_t srclen)
 {
     static const char b64d[] = {
         64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
@@ -89,9 +106,6 @@ char *b64Decode(void *dst, char *src, size_t srclen)
         64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
         64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64};
 
-    int external_flag = 0;
-    if (dst != NULL)
-        external_flag++;
 
     ssize_t inlen = srclen;
     if (inlen == 0 || inlen % 4)
@@ -103,11 +117,13 @@ char *b64Decode(void *dst, char *src, size_t srclen)
     if (src[inlen - 2] == '=')
         outlen--;
 
-    char *out = (external_flag) ? dst : malloc(outlen + 1);
-    if (out == NULL)
-        return NULL;
-    out[outlen] = '\0';
-    char *p = out;
+    if (!dst) {
+    	dst = malloc(outlen + 1);
+	// malloc failed so return early
+    	if (!dst)
+            return NULL;
+    }
+    dst[outlen] = '\0';
 
     typedef unsigned int u32;
     for (ssize_t i = 0, j = 0; i < inlen;)
@@ -121,14 +137,14 @@ char *b64Decode(void *dst, char *src, size_t srclen)
                      (c << 1 * 6) + (d << 0 * 6);
 
         if (j < outlen)
-            out[j++] = (triple >> 2 * 8) & 0xFF;
+            dst[j++] = (triple >> 2 * 8) & 0xFF;
         if (j < outlen)
-            out[j++] = (triple >> 1 * 8) & 0xFF;
+            dst[j++] = (triple >> 1 * 8) & 0xFF;
         if (j < outlen)
-            out[j++] = (triple >> 0 * 8) & 0xFF;
+            dst[j++] = (triple >> 0 * 8) & 0xFF;
     }
 
-    return out;
+    return dst;
 }
 
 #endif
